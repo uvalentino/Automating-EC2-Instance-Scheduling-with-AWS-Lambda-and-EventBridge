@@ -1,0 +1,1 @@
+# Automating-EC2-Instance-Scheduling-with-AWS-Lambda-and-EventBridge
