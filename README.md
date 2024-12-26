@@ -1,48 +1,45 @@
 # Automating-EC2-Instance-Scheduling-with-AWS-Lambda-and-EventBridge
 
-Scenario
+![Screenshot 2024-12-26 115416](https://github.com/user-attachments/assets/e2b5a9d9-c2a8-464f-b460-586a90080cad)
+
+## Scenario
 
 A company operates a development EC2 server that is only used during office hours, from 9:00 AM to 5:00 PM, Monday to Friday. To reduce costs, the company wants to automate the stopping and starting of this EC2 instance outside of these hours, which is estimated to save approximately 60% in costs.
 
-Objective
+## Objective
 
 Automate the start and stop of the EC2 instance:
+- Start the instance at 9:00 AM, Monday to Friday.
+- Stop the instance at 5:00 PM, Monday to Friday.
 
-Start the instance at 9:00 AM, Monday to Friday.
+## Solution Overview
 
-Stop the instance at 5:00 PM, Monday to Friday.
-
-Solution Overview
-
-Lambda Functions
+### 1. Lambda Functions
 
 Create two Lambda functions written in Python using the AWS SDK for Python (boto3).
+- Start Lambda: Script to start the EC2 instance.
+- Stop Lambda: Script to stop the EC2 instance.
 
-Start Lambda: Script to start the EC2 instance.
-
-Stop Lambda: Script to stop the EC2 instance.
-
-Event Triggers
+### 2. Event Triggers
 
 Use Amazon EventBridge (formerly CloudWatch Events) to schedule the execution of these Lambda functions:
+- Trigger the Start Lambda at 9:00 AM, Monday to Friday.
+- Trigger the Stop Lambda at 5:00 PM, Monday to Friday.
 
-Trigger the Start Lambda at 9:00 AM, Monday to Friday.
+## Steps to Implement
 
-Trigger the Stop Lambda at 5:00 PM, Monday to Friday.
+### 1. Create Lambda Functions
 
-Steps to Implement
-
-1. Create Lambda Functions
-
-Prerequisites
+### Prerequisites
 
 An IAM role with permissions to manage EC2 instances (e.g., ec2:StartInstances and ec2:StopInstances).
 
-Start Lambda Function
+#### Start Lambda Function
 
 A Python script using boto3 to start the EC2 instance:
 import boto3
 
+```
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     instance_id = 'i-xxxxxxxxxxxxxxxxx'  # Replace with your EC2 instance ID
@@ -51,12 +48,14 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': f'Instance {instance_id} started successfully.'
     }
+```
 
-Stop Lambda Function
+#### Stop Lambda Function
 
 A Python script using boto3 to stop the EC2 instance:
 import boto3
 
+```
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     instance_id = 'i-xxxxxxxxxxxxxxxxx'  # Replace with your EC2 instance ID
@@ -65,56 +64,50 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': f'Instance {instance_id} stopped successfully.'
     }
+```
 
-
-  2. Configure EventBridge Triggers
+### 2. Configure EventBridge Triggers
 
 Create Two Scheduled Rules
 
-Start Event
+#### Start Event
 
-Schedule Expression: cron(0 9 ? * MON-FRI *)
+- Schedule Expression: cron(0 9 ? * MON-FRI *)
+- Target: Start Lambda Function
 
-Target: Start Lambda Function
+#### Stop Event
 
-Stop Event
+- Schedule Expression: cron(0 17 ? * MON-FRI *)
+- Target: Stop Lambda Function
 
-Schedule Expression: cron(0 17 ? * MON-FRI *)
+#### Steps to Configure
 
-Target: Stop Lambda Function
+- Go to the EventBridge Console.
+- Create a new rule for each schedule.
+- Set the target for each rule to the corresponding Lambda function.
 
-Steps to Configure
+### 3. Testing
 
-Go to the EventBridge Console.
+- Test the Lambda functions manually to ensure they start and stop the instance as expected.
+- Verify the EventBridge triggers fire at the correct times.
 
-Create a new rule for each schedule.
+### 4. Monitor and Optimize
 
-Set the target for each rule to the corresponding Lambda function.
+- Use Amazon CloudWatch Logs to monitor Lambda execution.
+- Adjust the schedule or instance settings if necessary.
 
-3. Testing
-
-Test the Lambda functions manually to ensure they start and stop the instance as expected.
-
-Verify the EventBridge triggers fire at the correct times.
-
-4. Monitor and Optimize
-
-Use Amazon CloudWatch Logs to monitor Lambda execution.
-
-Adjust the schedule or instance settings if necessary.
-
-Expected Outcome
+## Expected Outcome
 
 With this solution:
 
-The EC2 instance will automatically start at 9:00 AM and stop at 5:00 PM, Monday to Friday.
+- The EC2 instance will automatically start at 9:00 AM and stop at 5:00 PM, Monday to Friday.
 
-The company will save costs by not running the instance during non-working hours.
+- The company will save costs by not running the instance during non-working hours.
 
-Benefits
+## Benefits
 
-Cost Savings: Significant reduction in EC2 running costs.
+- Cost Savings: Significant reduction in EC2 running costs.
 
-Automation: No manual intervention required for starting/stopping the instance.
+- Automation: No manual intervention required for starting/stopping the instance.
 
-Scalability: Easily extendable to manage additional instances or different schedules.
+- Scalability: Easily extendable to manage additional instances or different schedules.
